@@ -1,0 +1,23 @@
+# Secretos: nunca al repositorio
+.env
+*.env
+!.env.example
+
+# Compilados y dependencias (por subproyecto)
+_build/
+deps/
+cover/
+doc/
+priv/plts/
+erl_crash.dump
+*.ez
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.elixir_ls/
+.lexical/
+
+# Claude Code local
+.claude/
