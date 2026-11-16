@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <title>
+      {if assigns[:page_title], do: "#{assigns[:page_title]} · DevWatch", else: "DevWatch"}
+    </title>
+    <link phx-track-static rel="stylesheet" href={~p"/css/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/js/app.js"}>
+    </script>
+  </head>
+  <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+    <header class="encabezado">
+      <div class="encabezado__interior">
+        <a class="marca" href={~p"/"}>DevWatch</a>
+        <nav aria-label="Cuenta">
+          <ul class="nav">
+            <%= if @current_scope do %>
+              <li class="tenue">{@current_scope.cuenta.nombre}</li>
+              <li>
+                <.form for={%{}} action={~p"/cerrar-sesion"} method="delete">
+                  <button type="submit" class="boton boton--enlace">Cerrar sesión</button>
+                </.form>
+              </li>
+            <% else %>
+              <li><a href={~p"/iniciar-sesion"}>Iniciar sesión</a></li>
+              <li><a href={~p"/registro"}>Crear cuenta</a></li>
+            <% end %>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    {@inner_content}
+  </body>
+</html>

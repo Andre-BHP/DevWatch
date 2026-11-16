@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "fase/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  OTP_VERSION: "29.0.5"
+  ELIXIR_VERSION: "1.20.3"
+  MIX_ENV: test
+  PGUSER: devwatch
+  PGPASSWORD: devwatch_local
+  PGHOST: localhost
+
+jobs:
+  plataforma:
+    name: Plataforma (devwatch)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: devwatch
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: devwatch
+          POSTGRES_PASSWORD: devwatch_local
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ env.OTP_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+      - name: Caché de dependencias y compilación
+        uses: actions/cache@v4
+        with:
+          path: |
+            devwatch/deps
+            devwatch/_build
+            devwatch/priv/plts
+          key: plataforma-${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles('devwatch/mix.lock') }}
+          restore-keys: plataforma-${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-
+      - run: mix deps.get
+      - name: Formato
+        run: mix format --check-formatted
+      - name: Compilación sin advertencias
+        run: mix compile --warnings-as-errors
+      - name: Credo
+        run: mix credo --strict
+      - name: Sobelow
+        run: mix sobelow --config --exit
+      - name: Auditoría de dependencias
+        run: mix deps.audit
+      - name: Dialyzer
+        run: mix dialyzer --format github
+      - name: Pruebas con cobertura
+        run: mix coveralls
