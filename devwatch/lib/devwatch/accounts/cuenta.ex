@@ -29,7 +29,7 @@ defmodule DevWatch.Accounts.Cuenta do
   """
   def registro_changeset(cuenta, attrs, opts \\ []) do
     cuenta
-    |> cast(attrs, [:nombre, :correo, :contrasena], empty_values: [])
+    |> cast(attrs, [:nombre, :correo, :contrasena])
     |> validar_nombre()
     |> validar_correo()
     |> validar_contrasena(opts)
@@ -58,7 +58,7 @@ defmodule DevWatch.Accounts.Cuenta do
 
   defp validar_contrasena(changeset, opts) do
     changeset
-    |> validate_required([:contrasena], message: "La contraseña es obligatoria", trim: false)
+    |> validate_required([:contrasena], message: "La contraseña es obligatoria")
     |> validate_length(:contrasena,
       min: @longitud_minima,
       max: @longitud_maxima,
